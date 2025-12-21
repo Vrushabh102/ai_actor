@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "772894782124",
+    "project_id": "face2screen-27028",
+    "storage_bucket": "face2screen-27028.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772894782124:android:8e3d410dddf9292877a509",
+        "android_client_info": {
+          "package_name": "com.example.face2screen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-DijYOBUNPoj6Bnaooy6PTidAwe07faw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
