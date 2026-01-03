@@ -38,22 +38,14 @@ class _ActorHomeScreenState extends State<ActorHomeScreen> {
       ),
       body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color(0xFF0A0E21),
         currentIndex: _selectedIndex,
-        selectedItemColor: const Color(0xFF1B4965),
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: const Color.fromARGB(255, 255, 255, 255),
+        unselectedItemColor: const Color.fromARGB(255, 141, 136, 136),
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Calls',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            label: 'Matches',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Calls'),
+          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Matches'),
         ],
         onTap: (index) => setState(() => _selectedIndex = index),
       ),

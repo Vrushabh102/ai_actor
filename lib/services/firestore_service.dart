@@ -9,9 +9,10 @@ class FirestoreService {
   // Actor Profile Methods
   Future<void> saveActorProfile(ActorProfile profile) async {
     try {
-      await _firestore.collection('actor_profiles').doc(profile.uid).set(
-            profile.toMap(),
-          );
+      await _firestore
+          .collection('actor_profiles')
+          .doc(profile.uid)
+          .set(profile.toMap());
     } catch (e) {
       throw Exception('Error saving actor profile: $e');
     }
@@ -19,7 +20,10 @@ class FirestoreService {
 
   Future<ActorProfile?> getActorProfile(String uid) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('actor_profiles').doc(uid).get();
+      DocumentSnapshot doc = await _firestore
+          .collection('actor_profiles')
+          .doc(uid)
+          .get();
       if (doc.exists) {
         return ActorProfile.fromFirestore(doc);
       }
@@ -32,9 +36,7 @@ class FirestoreService {
   // Casting Call Methods
   Future<void> createCastingCall(CastingCall castingCall) async {
     try {
-      await _firestore.collection('casting_calls').add(
-            castingCall.toMap(),
-          );
+      await _firestore.collection('casting_calls').add(castingCall.toMap());
     } catch (e) {
       throw Exception('Error creating casting call: $e');
     }
@@ -42,8 +44,12 @@ class FirestoreService {
 
   Future<List<CastingCall>> getAllCastingCalls() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('casting_calls').get();
-      return snapshot.docs.map((doc) => CastingCall.fromFirestore(doc)).toList();
+      QuerySnapshot snapshot = await _firestore
+          .collection('casting_calls')
+          .get();
+      return snapshot.docs
+          .map((doc) => CastingCall.fromFirestore(doc))
+          .toList();
     } catch (e) {
       throw Exception('Error fetching casting calls: $e');
     }
@@ -55,7 +61,9 @@ class FirestoreService {
           .collection('casting_calls')
           .where('directorId', isEqualTo: directorId)
           .get();
-      return snapshot.docs.map((doc) => CastingCall.fromFirestore(doc)).toList();
+      return snapshot.docs
+          .map((doc) => CastingCall.fromFirestore(doc))
+          .toList();
     } catch (e) {
       throw Exception('Error fetching director casting calls: $e');
     }
@@ -64,9 +72,7 @@ class FirestoreService {
   // Match Methods
   Future<void> createMatch(Match match) async {
     try {
-      await _firestore.collection('matches').add(
-            match.toMap(),
-          );
+      await _firestore.collection('matches').add(match.toMap());
     } catch (e) {
       throw Exception('Error creating match: $e');
     }

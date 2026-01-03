@@ -30,39 +30,46 @@ class _CastingCallsScreenState extends State<CastingCallsScreen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0A0E21),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _castingCalls.isEmpty
-              ? const Center(child: Text('No casting calls available'))
-              : RefreshIndicator(
-                  onRefresh: _loadCastingCalls,
-                  child: ListView.builder(
-                    itemCount: _castingCalls.length,
-                    itemBuilder: (context, index) {
-                      final call = _castingCalls[index];
-                      return CastingCallCard(
-                        call: call,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CastingCallDetailScreen(castingCall: call),
-                            ),
-                          );
-                        },
+          ? const Center(
+              child: Text(
+                'No casting calls available',
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadCastingCalls,
+              child: ListView.builder(
+                itemCount: _castingCalls.length,
+                itemBuilder: (context, index) {
+                  final call = _castingCalls[index];
+                  return CastingCallCard(
+                    call: call,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CastingCallDetailScreen(castingCall: call),
+                        ),
                       );
                     },
-                  ),
-                ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }
@@ -71,61 +78,143 @@ class CastingCallCard extends StatelessWidget {
   final CastingCall call;
   final VoidCallback onTap;
 
-  const CastingCallCard({
-    Key? key,
-    required this.call,
-    required this.onTap,
-  }) : super(key: key);
+  const CastingCallCard({super.key, required this.call, required this.onTap});
+
+  static const _bgColor = Color(0xFF1E1E3F);
+  static const _cyan = Color(0xFF00D9FF);
+  static const _purple = Color(0xFF7B2FF7);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: _bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _cyan.withOpacity(0.35), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: _purple.withOpacity(0.25),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Title
               Text(
                 call.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1B4965),
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 8),
+
+              const SizedBox(height: 6),
+
+              // Character name
               Text(
-                'Character: ${call.characterName}',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                call.characterName,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: _cyan.withOpacity(0.9),
+                ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Age: ${call.ageMin} - ${call.ageMax}',
-                style: const TextStyle(fontSize: 13, color: Colors.grey),
-              ),
+
               const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+              // Chips row
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [
-                  Text(
-                    'Gender: ${call.requiredGender}',
-                    style: const TextStyle(fontSize: 13, color: Colors.grey),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2D7A8C),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    ),
-                    onPressed: onTap,
-                    child: const Text('View'),
-                  ),
+                  _InfoChip(label: 'Age ${call.ageMin}-${call.ageMax}'),
+                  _InfoChip(label: call.requiredGender),
                 ],
               ),
+
+              const SizedBox(height: 16),
+
+              // CTA row
+              Align(
+                alignment: Alignment.centerRight,
+                child: _GradientButton(text: 'View', onTap: onTap),
+              ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final String label;
+
+  const _InfoChip({required this.label});
+
+  static const _cyan = Color(0xFF00D9FF);
+  static const _purple = Color(0xFF7B2FF7);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: [_cyan.withOpacity(0.12), _purple.withOpacity(0.12)],
+        ),
+        border: Border.all(color: _cyan.withOpacity(0.4), width: 0.8),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class _GradientButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
+
+  const _GradientButton({required this.text, required this.onTap});
+
+  static const _cyan = Color(0xFF00D9FF);
+  static const _purple = Color(0xFF7B2FF7);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: const LinearGradient(colors: [_cyan, _purple]),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
           ),
         ),
       ),

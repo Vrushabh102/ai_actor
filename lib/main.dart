@@ -7,13 +7,16 @@ import 'screens/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/actor/actor_home_screen.dart';
 import 'screens/director/director_home_screen.dart';
- 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AuthProvider()..initAuth(),
+      child: const MyApp(),
+    ),
   );
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -21,42 +24,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-      ],
-      child: MaterialApp(
-        title: 'Face2Screen',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primaryColor: const Color(0xFF1B4965),
-          secondaryHeaderColor: const Color(0xFF2D7A8C),
-          scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-          fontFamily: 'Roboto',
-          useMaterial3: true,
-        ),
-        home: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            return FutureBuilder(
-              future: authProvider.getCurrentUser(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SplashScreen();
-                }
-                
-                if (authProvider.isAuthenticated) {
-                  if (authProvider.userRole == 'actor') {
-                    return const ActorHomeScreen();
-                  } else {
-                    return const DirectorHomeScreen();
-                  }
-                }
-                
-                return const LoginScreen();
-              },
-            );
-          },
-        ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        primaryColor: const Color(0xFF1B4965),
+      ),
+      home: Consumer<AuthProvider>(
+        builder: (_, auth, __) {
+          switch (auth.status) {
+            case AuthStatus.loading:
+              return const SplashScreen();
+
+            case AuthStatus.actor:
+              return const ActorHomeScreen();
+
+            case AuthStatus.director:
+              return const DirectorHomeScreen();
+
+            case AuthStatus.unauthenticated:
+              return const LoginScreen();
+          }
+        },
       ),
     );
   }

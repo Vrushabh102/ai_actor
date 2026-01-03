@@ -426,6 +426,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _nameController.text,
         _selectedRole,
       );
+
+      
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
