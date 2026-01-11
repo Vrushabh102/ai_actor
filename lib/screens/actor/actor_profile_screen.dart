@@ -539,7 +539,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               value: _selectedExperience,
               label: 'Experience Level',
               icon: Icons.work_outline_rounded,
-              items: ['fresher', 'intermediate', 'professional'],
+              items: ['fresher', 'professional'],
               onChanged: (value) {
                 if (value != null) setState(() => _selectedExperience = value);
               },

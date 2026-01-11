@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:face2screen/screens/actor/view_casting_call_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/match_model.dart';
@@ -30,7 +31,7 @@ class _ActorMatchesScreenState extends State<ActorMatchesScreen> {
   Future<void> _loadMatches() async {
     try {
       final auth = Provider.of<AuthProvider>(context, listen: false);
-      final matches = await _firestoreService.getActorMatches(auth.user!.uid);
+      final matches = await _firestoreService.getCastingAcceptedCallMatches();
 
       setState(() {
         _matches = matches;
@@ -184,7 +185,13 @@ class MatchCard extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(24),
               onTap: () {
-                // Navigate to match / casting details
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (_) =>
+                //         AcceptedMatchCard(castingCallId: match.castingCallId),
+                //   ),
+                // );
               },
               child: Container(
                 alignment: Alignment.center,

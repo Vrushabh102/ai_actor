@@ -13,6 +13,7 @@ class DirectorHomeScreen extends StatefulWidget {
 
 class _DirectorHomeScreenState extends State<DirectorHomeScreen> {
   int _selectedIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -24,15 +25,42 @@ class _DirectorHomeScreenState extends State<DirectorHomeScreen> {
     ];
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: const Color(0xFF1B4965),
-        title: const Text('Face2Screen Director', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Face2Screen Director',
+          style: TextStyle(color: Colors.white),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () => authProvider.logout(),
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
           ),
         ],
+      ),
+
+      endDrawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(color: Color(0xFF1B4965)),
+              child: const Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                authProvider.logout();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
       body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -44,10 +72,7 @@ class _DirectorHomeScreenState extends State<DirectorHomeScreen> {
             icon: Icon(Icons.list),
             label: 'Casting Calls',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Matches',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Matches'),
         ],
         onTap: (index) => setState(() => _selectedIndex = index),
       ),

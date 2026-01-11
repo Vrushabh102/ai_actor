@@ -1,3 +1,5 @@
+import 'package:face2screen/screens/director/director_matches_screen.dart';
+import 'package:face2screen/screens/director/matches_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/casting_call_model.dart';
@@ -409,7 +411,7 @@ class CastingCallCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      call.description!,
+                      call.description,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.white.withOpacity(0.7),
@@ -449,7 +451,12 @@ class CastingCallCard extends StatelessWidget {
                     ),
                     onPressed: () {
                       // Navigate to matches screen
-                      // You can implement this later
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MatchesScreen(isActor: true),
+                        ),
+                      ).then((_) => onRefresh());
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/actor_profile_model.dart';
 import '../models/casting_call_model.dart';
 import '../models/match_model.dart';
@@ -78,12 +81,28 @@ class FirestoreService {
     }
   }
 
-  Future<List<Match>> getActorMatches(String actorId) async {
+  Future<List<Match>> getActorMatches() async {
     try {
+      final String? userId = FirebaseAuth.instance.currentUser?.uid;
+      log('Fetching matches for userId: $userId');
       QuerySnapshot snapshot = await _firestore
           .collection('matches')
-          .where('actorId', isEqualTo: actorId)
-          .orderBy('createdAt', descending: true)
+          .where('directorId', isEqualTo: userId)
+          .get();
+      return snapshot.docs.map((doc) => Match.fromFirestore(doc)).toList();
+    } catch (e) {
+      throw Exception('Error fetching actor matches: $e');
+    }
+  }
+
+  Future<List<Match>> getCastingAcceptedCallMatches() async {
+    try {
+      final String? userId = FirebaseAuth.instance.currentUser?.uid;
+      log('Fetching matches for userId: $userId');
+      QuerySnapshot snapshot = await _firestore
+          .collection('matches')
+          .where('actorId', isEqualTo: userId)
+          .where('status', isEqualTo: 'accepted')
           .get();
       return snapshot.docs.map((doc) => Match.fromFirestore(doc)).toList();
     } catch (e) {
