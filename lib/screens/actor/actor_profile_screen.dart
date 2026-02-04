@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ActorProfileScreen extends StatelessWidget {
-  final User user;
+  // final User user;
 
   const ActorProfileScreen({
     Key? key,
-    required this.user,
+    // required this.user,
   }) : super(key: key);
 
   @override
@@ -51,7 +51,7 @@ class ActorProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  user.email ?? 'Not available',
+                  'Not available',
                   style: theme.textTheme.titleMedium,
                 ),
 
@@ -64,7 +64,7 @@ class ActorProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  user.uid,
+                  'Not available',
                   style: theme.textTheme.bodyMedium,
                 ),
 

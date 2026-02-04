@@ -1,10 +1,10 @@
-import'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import 'casting_calls_screen.dart';
 import 'actor_matches_screen.dart';
-import 'actor_profile_screen.dart'; 
+import 'actor_profile_screen.dart';
 
 class ActorHomeScreen extends StatefulWidget {
   const ActorHomeScreen({Key? key}) : super(key: key);
@@ -26,16 +26,14 @@ class _ActorHomeScreenState extends State<ActorHomeScreen> {
 
     /// 🔐 USER NULL CHECK (VERY IMPORTANT)
     if (user == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     /// ✅ SCREENS (NO ERROR HERE)
     final List<Widget> screens = [
       const CastingCallsScreen(),
       const ActorMatchesScreen(),
-      const ActorHomeScreen(),
+      const ActorProfileScreen(),
     ];
 
     return Theme(
@@ -45,8 +43,7 @@ class _ActorHomeScreenState extends State<ActorHomeScreen> {
 
         /// 🔝 APP BAR
         appBar: AppBar(
-          backgroundColor:
-              _isDarkMode ? Colors.black : const Color(0xFF1B4965),
+          backgroundColor: _isDarkMode ? Colors.black : const Color(0xFF1B4965),
           title: const Text(
             'Face2Screen',
             style: TextStyle(color: Colors.white),
@@ -66,8 +63,7 @@ class _ActorHomeScreenState extends State<ActorHomeScreen> {
             children: [
               DrawerHeader(
                 decoration: BoxDecoration(
-                  color:
-                      _isDarkMode ? Colors.black : const Color(0xFF1B4965),
+                  color: _isDarkMode ? Colors.black : const Color(0xFF1B4965),
                 ),
                 child: const Text(
                   'Menu',
@@ -101,27 +97,16 @@ class _ActorHomeScreenState extends State<ActorHomeScreen> {
         ),
 
         /// 🧱 BODY
-        body: SafeArea(
-          child: screens[_selectedIndex],
-        ),
+        body: SafeArea(child: screens[_selectedIndex]),
 
         /// 🔻 BOTTOM NAV
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: (index) => setState(() => _selectedIndex = index),
           items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list),
-              label: 'Calls',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.star),
-              label: 'Matches',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Calls'),
+            BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Matches'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
         ),
       ),
