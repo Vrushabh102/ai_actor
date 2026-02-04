@@ -1,11 +1,10 @@
-import 'package:face2screen/screens/director/director_matches_screen.dart';
-import 'package:face2screen/screens/director/matches_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/casting_call_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/firestore_service.dart';
 import 'create_casting_call_screen.dart';
+import 'matches_screen.dart';
 
 class DirectorCastingCallsScreen extends StatefulWidget {
   const DirectorCastingCallsScreen({Key? key}) : super(key: key);
@@ -20,6 +19,8 @@ class _DirectorCastingCallsScreenState
   final FirestoreService _firestoreService = FirestoreService();
   List<CastingCall> _castingCalls = [];
   bool _isLoading = true;
+
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -39,498 +40,163 @@ class _DirectorCastingCallsScreenState
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red.shade400,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E21),
+      backgroundColor: theme.scaffoldBackgroundColor,
+
+      /// ✅ THEME AWARE APP BAR
+      appBar: AppBar(
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        elevation: 0,
+        title: Text(
+          'My Casting Calls',
+          style: theme.textTheme.titleLarge,
+        ),
+        iconTheme: theme.iconTheme,
+      ),
+
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF00D9FF)),
-            )
-          : _buildContent(),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF00D9FF), Color(0xFF7B2FF7)],
+          ? const Center(child: CircularProgressIndicator())
+          : _buildContent(theme),
+
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: theme.colorScheme.primary,
+        onPressed: _navigateToCreateCall,
+        icon: const Icon(Icons.add),
+        label: const Text('New'),
+      ),
+
+      /// ✅ THEME AWARE BOTTOM NAV
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        backgroundColor:
+            theme.bottomNavigationBarTheme.backgroundColor,
+        selectedItemColor:
+            theme.bottomNavigationBarTheme.selectedItemColor,
+        unselectedItemColor:
+            theme.bottomNavigationBarTheme.unselectedItemColor,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.movie_creation_outlined),
+            label: 'Casting',
           ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF00D9FF).withOpacity(0.4),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: FloatingActionButton.extended(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          onPressed: _navigateToCreateCall,
-          icon: const Icon(Icons.add_rounded, color: Colors.white),
-          label: const Text(
-            'New Call',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Account',
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(ThemeData theme) {
     if (_castingCalls.isEmpty) {
-      return _buildEmptyState();
+      return Center(
+        child: Text(
+          'No Casting Calls Yet',
+          style: theme.textTheme.titleMedium,
+        ),
+      );
     }
 
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 200,
-          pinned: true,
-          backgroundColor: const Color(0xFF0A0E21),
-          flexibleSpace: FlexibleSpaceBar(
-            background: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFF00D9FF).withOpacity(0.3),
-                    const Color(0xFF7B2FF7).withOpacity(0.3),
-                  ],
-                ),
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'My Casting Calls',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${_castingCalls.length} active ${_castingCalls.length == 1 ? 'call' : 'calls'}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white.withOpacity(0.7),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _castingCalls.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: CastingCallCard(
+            call: _castingCalls[index],
+            onRefresh: _loadCastingCalls,
           ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.all(20),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: CastingCallCard(
-                  call: _castingCalls[index],
-                  onRefresh: _loadCastingCalls,
-                ),
-              );
-            }, childCount: _castingCalls.length),
-          ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 80)),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      const Color(0xFF00D9FF).withOpacity(0.2),
-                      const Color(0xFF7B2FF7).withOpacity(0.2),
-                    ],
-                  ),
-                ),
-                child: const Icon(
-                  Icons.movie_creation_outlined,
-                  size: 60,
-                  color: Color(0xFF00D9FF),
-                ),
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'No Casting Calls Yet',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Create your first casting call to start\nfinding the perfect talent',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white.withOpacity(0.6),
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 48),
-              Container(
-                width: double.infinity,
-                height: 56,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF00D9FF), Color(0xFF7B2FF7)],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF00D9FF).withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  onPressed: _navigateToCreateCall,
-                  child: const Text(
-                    'Create First Casting Call',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   void _navigateToCreateCall() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const CreateCastingCallScreen()),
+      MaterialPageRoute(builder: (_) => const CreateCastingCallScreen()),
     ).then((_) => _loadCastingCalls());
   }
 }
+
+/// ================= CARD =================
 
 class CastingCallCard extends StatelessWidget {
   final CastingCall call;
   final VoidCallback onRefresh;
 
-  const CastingCallCard({Key? key, required this.call, required this.onRefresh})
-    : super(key: key);
+  const CastingCallCard({
+    Key? key,
+    required this.call,
+    required this.onRefresh,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E3F),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF00D9FF).withOpacity(0.2)),
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with gradient
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF00D9FF).withOpacity(0.2),
-                  const Color(0xFF7B2FF7).withOpacity(0.2),
-                ],
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF00D9FF), Color(0xFF7B2FF7)],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.movie_filter_rounded,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        call.title,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF00D9FF).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          call.characterName,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF00D9FF),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          Text(
+            call.title,
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
-
-          // Details Section
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildDetailItem(
-                        Icons.cake_rounded,
-                        'Age Range',
-                        '${call.ageMin} - ${call.ageMax} yrs',
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildDetailItem(
-                        Icons.wc_rounded,
-                        'Gender',
-                        // call.gender ?? 'Any',
-                        call.requiredGender,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildDetailItem(
-                        Icons.calendar_today_rounded,
-                        'Posted',
-                        _getTimeAgo(call.createdAt),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildDetailItem(
-                        Icons.access_time_rounded,
-                        'Status',
-                        'Active',
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Description
-                if (call.description.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0A0E21),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      call.description,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.7),
-                        height: 1.5,
-                      ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-
-                // Action Button
-                const SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF00D9FF), Color(0xFF7B2FF7)],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF00D9FF).withOpacity(0.3),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () {
-                      // Navigate to matches screen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MatchesScreen(isActor: true),
-                        ),
-                      ).then((_) => onRefresh());
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.people_rounded, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'View Matches',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailItem(IconData icon, String label, String value) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0A0E21),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF00D9FF).withOpacity(0.1)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: const Color(0xFF00D9FF), size: 20),
           const SizedBox(height: 6),
           Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.white.withOpacity(0.5),
-            ),
+            call.characterName,
+            style: theme.textTheme.bodyMedium,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
           Text(
-            value,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+            call.description,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 16),
+
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MatchesScreen(isActor: true),
+                  ),
+                ).then((_) => onRefresh());
+              },
+              child: const Text('View Matches'),
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
-  }
-
-  String _getTimeAgo(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inDays > 30) {
-      return '${(difference.inDays / 30).floor()}mo ago';
-    } else if (difference.inDays > 0) {
-      return '${difference.inDays}d ago';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m ago';
-    } else {
-      return 'Just now';
-    }
   }
 }

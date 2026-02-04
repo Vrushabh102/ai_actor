@@ -30,46 +30,48 @@ class _CastingCallsScreenState extends State<CastingCallsScreen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E21),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _castingCalls.isEmpty
-          ? const Center(
-              child: Text(
-                'No casting calls available',
-                style: TextStyle(color: Colors.white),
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: _loadCastingCalls,
-              child: ListView.builder(
-                itemCount: _castingCalls.length,
-                itemBuilder: (context, index) {
-                  final call = _castingCalls[index];
-                  return CastingCallCard(
-                    call: call,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CastingCallDetailScreen(castingCall: call),
-                        ),
+              ? Center(
+                  child: Text(
+                    'No casting calls available',
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadCastingCalls,
+                  child: ListView.builder(
+                    itemCount: _castingCalls.length,
+                    itemBuilder: (context, index) {
+                      final call = _castingCalls[index];
+                      return CastingCallCard(
+                        call: call,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CastingCallDetailScreen(
+                                castingCall: call,
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
-            ),
+                  ),
+                ),
     );
   }
 }
@@ -78,27 +80,39 @@ class CastingCallCard extends StatelessWidget {
   final CastingCall call;
   final VoidCallback onTap;
 
-  const CastingCallCard({super.key, required this.call, required this.onTap});
-
-  static const _bgColor = Color(0xFF1E1E3F);
-  static const _cyan = Color(0xFF00D9FF);
-  static const _purple = Color(0xFF7B2FF7);
+  const CastingCallCard({
+    super.key,
+    required this.call,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final bgColor =
+        isDark ? const Color(0xFF1E1E3F) : Colors.white;
+    final borderColor =
+        isDark ? Colors.cyanAccent : Colors.blueGrey.shade200;
+    final titleColor =
+        isDark ? Colors.white : Colors.black;
+    final subtitleColor =
+        isDark ? Colors.cyanAccent : Colors.blueGrey;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: _bgColor,
+          color: bgColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _cyan.withOpacity(0.35), width: 1),
+          border: Border.all(color: borderColor.withOpacity(0.4)),
           boxShadow: [
             BoxShadow(
-              color: _purple.withOpacity(0.25),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
+              color: Colors.black.withOpacity(isDark ? 0.4 : 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -107,33 +121,30 @@ class CastingCallCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
+              /// TITLE
               Text(
                 call.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: titleColor,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
 
               const SizedBox(height: 6),
 
-              // Character name
+              /// CHARACTER NAME
               Text(
                 call.characterName,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: _cyan.withOpacity(0.9),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: subtitleColor,
                 ),
               ),
 
               const SizedBox(height: 12),
 
-              // Chips row
+              /// INFO CHIPS
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -145,10 +156,13 @@ class CastingCallCard extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // CTA row
+              /// VIEW BUTTON
               Align(
                 alignment: Alignment.centerRight,
-                child: _GradientButton(text: 'View', onTap: onTap),
+                child: _GradientButton(
+                  text: 'View',
+                  onTap: onTap,
+                ),
               ),
             ],
           ),
@@ -163,26 +177,27 @@ class _InfoChip extends StatelessWidget {
 
   const _InfoChip({required this.label});
 
-  static const _cyan = Color(0xFF00D9FF);
-  static const _purple = Color(0xFF7B2FF7);
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          colors: [_cyan.withOpacity(0.12), _purple.withOpacity(0.12)],
+        color: isDark
+            ? Colors.cyan.withOpacity(0.15)
+            : Colors.blue.withOpacity(0.1),
+        border: Border.all(
+          color: isDark ? Colors.cyan : Colors.blueGrey,
+          width: 0.8,
         ),
-        border: Border.all(color: _cyan.withOpacity(0.4), width: 0.8),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: Colors.white,
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: isDark ? Colors.white : Colors.black,
         ),
       ),
     );
@@ -193,13 +208,15 @@ class _GradientButton extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
 
-  const _GradientButton({required this.text, required this.onTap});
-
-  static const _cyan = Color(0xFF00D9FF);
-  static const _purple = Color(0xFF7B2FF7);
+  const _GradientButton({
+    required this.text,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return InkWell(
       borderRadius: BorderRadius.circular(22),
       onTap: onTap,
@@ -207,12 +224,15 @@ class _GradientButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: const LinearGradient(colors: [_cyan, _purple]),
+          gradient: LinearGradient(
+            colors: isDark
+                ? [Colors.cyanAccent, Colors.purpleAccent]
+                : [Colors.blue, Colors.purple],
+          ),
         ),
         child: Text(
           text,
           style: const TextStyle(
-            fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Colors.black,
           ),

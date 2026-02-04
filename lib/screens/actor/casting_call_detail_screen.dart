@@ -10,7 +10,7 @@ class CastingCallDetailScreen extends StatefulWidget {
   final CastingCall castingCall;
 
   const CastingCallDetailScreen({super.key, required this.castingCall});
-
+             
   @override
   State<CastingCallDetailScreen> createState() =>
       _CastingCallDetailScreenState();
