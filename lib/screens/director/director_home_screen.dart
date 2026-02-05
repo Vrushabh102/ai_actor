@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'director_casting_calls_screen.dart';
 import 'director_matches_screen.dart';
+import 'create_casting_call_screen.dart';
 
 class DirectorHomeScreen extends StatefulWidget {
   const DirectorHomeScreen({Key? key}) : super(key: key);
@@ -24,21 +25,21 @@ class _DirectorHomeScreenState extends State<DirectorHomeScreen> {
     final screens = [
       const DirectorCastingCallsScreen(),
       const DirectorMatchesScreen(),
-      const Center(
-        child: Text('Chats Screen', style: TextStyle(fontSize: 20)),
-      ),
+      const Center(child: Text('Chats Screen', style: TextStyle(fontSize: 20))),
       const Center(
         child: Text('Account Screen', style: TextStyle(fontSize: 20)),
       ),
     ];
 
-    final ThemeData directorTheme =
-        _isDarkMode ? ThemeData.dark() : ThemeData.light();
+    final ThemeData directorTheme = _isDarkMode
+        ? ThemeData.dark()
+        : ThemeData.light();
 
     return Theme(
       data: directorTheme,
       child: Scaffold(
         key: _scaffoldKey,
+        backgroundColor: _isDarkMode ? const Color(0xFF121212) : Colors.white,
 
         /// ✅ APP BAR
         appBar: AppBar(
@@ -72,9 +73,7 @@ class _DirectorHomeScreenState extends State<DirectorHomeScreen> {
                 onTap: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Notifications coming soon'),
-                    ),
+                    const SnackBar(content: Text('Notifications coming soon')),
                   );
                 },
               ),
@@ -106,34 +105,41 @@ class _DirectorHomeScreenState extends State<DirectorHomeScreen> {
         /// ✅ BODY (ONLY CONTENT, NO NAV)
         body: SafeArea(child: screens[_selectedIndex]),
 
+        /// ✅ FLOATING ACTION BUTTON (only for Casting Calls screen)
+        floatingActionButton: _selectedIndex == 0
+            ? FloatingActionButton.extended(
+                backgroundColor: directorTheme.colorScheme.primary,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CreateCastingCallScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('New'),
+              )
+            : null,
+
         /// ✅ SINGLE BOTTOM NAV (NO DUPLICATE)
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
-          backgroundColor:
-              _isDarkMode ? const Color(0xFF121212) : Colors.white,
+          backgroundColor: _isDarkMode ? const Color(0xFF121212) : Colors.white,
           currentIndex: _selectedIndex,
-          selectedItemColor:
-              _isDarkMode ? Colors.blueAccent : const Color(0xFF1B4965),
-          unselectedItemColor:
-              _isDarkMode ? Colors.grey.shade400 : Colors.grey,
+          selectedItemColor: _isDarkMode
+              ? Colors.blueAccent
+              : const Color(0xFF1B4965),
+          unselectedItemColor: _isDarkMode ? Colors.grey.shade400 : Colors.grey,
           onTap: (index) => setState(() => _selectedIndex = index),
           items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list),
-              label: 'Casting',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people),
-              label: 'Matches',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Casting'),
+            BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Matches'),
             BottomNavigationBarItem(
               icon: Icon(Icons.chat_bubble_outline),
               label: 'Chats',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Account',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
           ],
         ),
       ),

@@ -40,8 +40,9 @@ class _DirectorCastingCallsScreenState
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -49,62 +50,30 @@ class _DirectorCastingCallsScreenState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-
-      /// ✅ THEME AWARE APP BAR
-      appBar: AppBar(
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        elevation: 0,
-        title: Text(
-          'My Casting Calls',
-          style: theme.textTheme.titleLarge,
+    return Column(
+      children: [
+        /// ✅ THEME AWARE APP BAR
+        AppBar(
+          backgroundColor: theme.appBarTheme.backgroundColor,
+          elevation: 0,
+          title: Text('My Casting Calls', style: theme.textTheme.titleLarge),
+          iconTheme: theme.iconTheme,
         ),
-        iconTheme: theme.iconTheme,
-      ),
 
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _buildContent(theme),
-
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: theme.colorScheme.primary,
-        onPressed: _navigateToCreateCall,
-        icon: const Icon(Icons.add),
-        label: const Text('New'),
-      ),
-
-      /// ✅ THEME AWARE BOTTOM NAV
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        backgroundColor:
-            theme.bottomNavigationBarTheme.backgroundColor,
-        selectedItemColor:
-            theme.bottomNavigationBarTheme.selectedItemColor,
-        unselectedItemColor:
-            theme.bottomNavigationBarTheme.unselectedItemColor,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.movie_creation_outlined),
-            label: 'Casting',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Account',
-          ),
-        ],
-      ),
+        /// ✅ BODY CONTENT
+        Expanded(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _buildContent(theme),
+        ),
+      ],
     );
   }
 
   Widget _buildContent(ThemeData theme) {
     if (_castingCalls.isEmpty) {
       return Center(
-        child: Text(
-          'No Casting Calls Yet',
-          style: theme.textTheme.titleMedium,
-        ),
+        child: Text('No Casting Calls Yet', style: theme.textTheme.titleMedium),
       );
     }
 
@@ -137,11 +106,8 @@ class CastingCallCard extends StatelessWidget {
   final CastingCall call;
   final VoidCallback onRefresh;
 
-  const CastingCallCard({
-    Key? key,
-    required this.call,
-    required this.onRefresh,
-  }) : super(key: key);
+  const CastingCallCard({Key? key, required this.call, required this.onRefresh})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -153,10 +119,7 @@ class CastingCallCard extends StatelessWidget {
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
         ],
       ),
       child: Column(
@@ -164,14 +127,12 @@ class CastingCallCard extends StatelessWidget {
         children: [
           Text(
             call.title,
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 6),
-          Text(
-            call.characterName,
-            style: theme.textTheme.bodyMedium,
-          ),
+          Text(call.characterName, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 12),
           Text(
             call.description,

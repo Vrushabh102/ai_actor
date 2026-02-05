@@ -40,28 +40,25 @@ class _DirectorMatchesScreenState extends State<DirectorMatchesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A0E21),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _matches.isEmpty
-          ? const Center(
-              child: Text(
-                'No actor matches yet. Create a casting call first!',
-                style: TextStyle(color: Colors.white),
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: _loadMatches,
-              child: ListView.builder(
-                itemCount: _matches.length,
-                itemBuilder: (context, index) {
-                  final match = _matches[index];
-                  return DirectorMatchCard(match: match);
-                },
-              ),
+    return _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : _matches.isEmpty
+        ? const Center(
+            child: Text(
+              'No actor matches yet. Create a casting call first!',
+              style: TextStyle(color: Colors.white),
             ),
-    );
+          )
+        : RefreshIndicator(
+            onRefresh: _loadMatches,
+            child: ListView.builder(
+              itemCount: _matches.length,
+              itemBuilder: (context, index) {
+                final match = _matches[index];
+                return DirectorMatchCard(match: match);
+              },
+            ),
+          );
   }
 }
 
